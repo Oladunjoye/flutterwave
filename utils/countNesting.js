@@ -1,14 +1,11 @@
 const util = require('util');
 function countNesting(object) {
-  const level = 1;
-  for (const key in object) {
-    if (!object.hasOwnProperty(key)) continue;
+  const level =
+    JSON.stringify(object)
+      .replace(/(["'])((?:(?=(?:(\\))*)\3.|.)*?)\1/g, '')
+      .match(/^((?:\{[^}]*)+)/)[1]
+      .split('{').length - 1;
 
-    if (typeof object[key] == 'object') {
-      const depth = util.depthOf(object[key]) + 1;
-      level = Math.max(depth, level);
-    }
-  }
   return level;
 }
 
