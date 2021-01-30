@@ -1,7 +1,6 @@
 const app = require('../server');
 const request = require('supertest');
 
-//rule and data fi
 describe('the /validate-rule endpoint', () => {
   describe('the required fields', () => {
     it('requires the rule field', async (done) => {
@@ -262,10 +261,10 @@ describe('the /validate-rule endpoint', () => {
       let postData = {
         rule: {
           field: 'age',
-          condition: 'neq',
+          condition: 'eq',
           condition_value: 45,
         },
-        data: { age: 45 },
+        data: { age: 405 },
       };
       const res = await request(app)
         .post('/validate-rule')
@@ -279,34 +278,17 @@ describe('the /validate-rule endpoint', () => {
           validation: {
             error: true,
             field: 'age',
-            field_value: 45,
-            condition: 'neq',
+            field_value: 405,
+            condition: 'eq',
             condition_value: 45,
           },
         },
       };
       expect(res.body).toEqual(error);
-      expect(res.status).toEqual(200);
+      expect(res.status).toEqual(400);
       done();
 
-      //status code should be 400
     });
   });
 });
 
-// let postData = {
-//   rule: {
-//     field: 'missions',
-//     condition: 'gte',
-//     condition_value: 30,
-//   },
-//   data: {
-//     name: 'James Holden',
-//     crew: 'Rocinante',
-//     age: 34,
-//     position: 'Captain',
-//     missions: 45,
-//   },
-// };
-
-// console.log(res.request._data)

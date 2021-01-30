@@ -1,4 +1,3 @@
-const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const fieldNesting = require('../utils/fieldNesting');
 const checkCondition = require('../utils/checkCondition');
@@ -67,7 +66,7 @@ const handlePosts = async (req, res, next) => {
       },
     });
   } else {
-    res.json({
+    res.status(400).json({
       message: `field ${rule.field} failed validation.`,
       status: 'error',
       data: {
