@@ -18,13 +18,28 @@ const handlePosts = async (req, res, next) => {
       new ErrorResponse('data should be an object, string or array.', 400)
     );
   }
+
   // check if rule is valid json object
   if (!(typeof rule === 'object')) {
     return next(new ErrorResponse('rule should be an object.', 400));
   }
 
+  //check if rule contains valid fields
+  if (!rule.field) {
+    return next(new ErrorResponse('field is missing from rule.', 400));
+  }
+  if (!rule.condition) {
+    return next(new ErrorResponse('condition is missing from rule.', 400));
+  }
+  if (!rule.condition_value) {
+    return next(
+      new ErrorResponse('condition_value is missing from rule.', 400)
+    );
+  }
   //check if rule.field is valid
-  const { targetField } = fieldNesting(rule, data);
+  const { targetField, error } = fieldNesting(rule, data);
+
+  if (error) return next(new ErrorResponse(error, 400));
   if (!targetField) {
     return next(
       new ErrorResponse(`field ${rule.field} is missing from data.`, 400)

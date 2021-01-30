@@ -6,17 +6,28 @@ const fieldNesting = (rule, data) => {
     status: false,
   };
 
+  if (inner === '0') {
+    response['targetField'] = data;
+    return response;
+  }
   const checkInner = (inner) => {
     const innerLength = inner.split('.');
 
     if (innerLength.length > 3) {
-      return false;
+      response['error'] = 'rule field exceeds nesting limit.';
+      return response;
     }
 
     let level1 = innerLength[0];
     const dataObject = typeof data[level1] === 'object';
 
-    if (!dataObject) return false;
+    if (!dataObject) {
+      if (innerLength.length > 1) {
+        response['error'] = `field ${inner} is missing from data .`;
+      }
+      response['targetField'] = data[level1];
+      return response;
+    }
 
     if (innerLength.length - 1 > countNesting(data[level1])) {
       return false;

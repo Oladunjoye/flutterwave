@@ -78,66 +78,220 @@ describe('the /validate-rule endpoint', () => {
       done();
     });
 
-    // it('should contain 3 subfields : condition, field and condition_value ', async (done) => {});
+    it('should contain 3 subfields : condition, field and condition_value ', async (done) => {
+      let postData = {
+        rule: {
+          // field: 'missions',
+          condition: 'gte',
+          condition_value: 30,
+        },
+        data: {
+          name: 'James Holden',
+          crew: 'Rocinante',
+          age: 34,
+          position: 'Captain',
+          missions: 45,
+        },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
 
-    // it('should not go beyond two nestings in rule[field]', async (done) => {});
+      const error = {
+        message: 'field is missing from rule.',
+        status: 'error',
+        data: null,
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(400);
+      done();
+    });
 
-    // it('rule[field] should be present in data', async (done) => {
-    //   const error = {
-    //     message: 'field age is missing from data.',
-    //     status: 'error',
-    //     data: null,
-    //   };
-    // });
+    it('should not go beyond two nestings in rule[field]', async (done) => {
+      let postData = {
+        rule: {
+          field: 'missions.fish.meat.tom',
+          condition: 'gte',
+          condition_value: 30,
+        },
+        data: {
+          name: 'James Holden',
+          crew: 'Rocinante',
+          age: 34,
+          position: 'Captain',
+          missions: 45,
+        },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
 
-    // it('should contain only accept 5 possible conditions ', async (done) => {});
+      const error = {
+        message: 'rule field exceeds nesting limit.',
+        status: 'error',
+        data: null,
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(400);
+      done();
+    });
+
+    it('rule[field] should be present in data', async (done) => {
+      let postData = {
+        rule: {
+          field: 'age',
+          condition: 'gte',
+          condition_value: 30,
+        },
+        data: {
+          name: 'James Holden',
+          crew: 'Rocinante',
+          // age: 34,
+          position: 'Captain',
+          missions: 45,
+        },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
+
+      const error = {
+        message: 'field age is missing from data.',
+        status: 'error',
+        data: null,
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(400);
+      done();
+    });
+
+    it('should contain only accept 5 possible conditions ', async (done) => {
+      let postData = {
+        rule: {
+          field: 'age',
+          condition: 'gre',
+          condition_value: 30,
+        },
+        data: {
+          name: 'James Holden',
+          crew: 'Rocinante',
+          age: 34,
+          position: 'Captain',
+          missions: 45,
+        },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
+
+      const error = {
+        message: 'invalid condition rule.',
+        status: 'error',
+        data: null,
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(400);
+      done();
+    });
   });
 
-  // describe('the data field constraints', () => {
-  //   it('should be a valid object, string or array ', async (done) => {
-  //     const error = {
-  //       message: '[field] should be a|an [type].',
-  //       status: 'error',
-  //       date: null,
-  //     };
-  //   });
-  // });
+  describe('the data field constraints', () => {
+    it('should be a valid object, string or array ', async (done) => {
+      let postData = {
+        rule: {
+          field: 'age',
+          condition: 'gte',
+          condition_value: 30,
+        },
+        data: 45,
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
 
-  // describe('validation conditions', () => {
-  //   it('should return positive response', async (done) => {
-  //     // {
-  //     //   "message: "field [name of field] successfully validated."
-  //     //   "status: "success",
-  //     //   "data: {
-  //     //     "validation: {
-  //     //       "error: false,
-  //     //       "field: "[name of field]",
-  //     //       "field_value: [value of field],
-  //     //       "condition: "[rule condition]",
-  //     //       "condition_value: [condition value]
-  //     //     }
-  //     //   }
-  //     //status code should be 200
-  //   });
+      const error = {
+        message: 'data should be an object, string or array.',
+        status: 'error',
+        data: null,
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(400);
+      done();
+    });
+  });
 
-  //   it('should return a negative response', async () => {
-  //     const error = {
-  //       message: 'field [name of field] failed validation.',
-  //       status: 'error',
-  //       data: {
-  //         validation: {
-  //           error: true,
-  //           field: '[name of field]',
-  //           field_value: ['value of field'],
-  //           condition: '[rule condition]',
-  //           condition_value: ['condition value'],
-  //         },
-  //       },
-  //     };
+  describe('validation conditions', () => {
+    it('should return positive response', async (done) => {
+      let postData = {
+        rule: {
+          field: 'age',
+          condition: 'gte',
+          condition_value: 30,
+        },
+        data: { age: 45 },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
 
-  //     //status code should be 400
-  //   });
-  // });
+      const result = {
+        message: 'field age successfully validated.',
+        status: 'success',
+        data: {
+          validation: {
+            error: false,
+            field: 'age',
+            field_value: 45,
+            condition: 'gte',
+            condition_value: 30,
+          },
+        },
+      };
+      expect(res.body).toEqual(result);
+      expect(res.status).toEqual(200);
+      done();
+    });
+
+    it('should return a negative response', async (done) => {
+      let postData = {
+        rule: {
+          field: 'age',
+          condition: 'neq',
+          condition_value: 45,
+        },
+        data: { age: 45 },
+      };
+      const res = await request(app)
+        .post('/validate-rule')
+        .send(postData)
+        .set('Accept', 'application/json');
+
+      const error = {
+        message: 'field age failed validation.',
+        status: 'error',
+        data: {
+          validation: {
+            error: true,
+            field: 'age',
+            field_value: 45,
+            condition: 'neq',
+            condition_value: 45,
+          },
+        },
+      };
+      expect(res.body).toEqual(error);
+      expect(res.status).toEqual(200);
+      done();
+
+      //status code should be 400
+    });
+  });
 });
 
 // let postData = {
@@ -155,4 +309,4 @@ describe('the /validate-rule endpoint', () => {
 //   },
 // };
 
-// console.log(res.request._data);
+// console.log(res.request._data)

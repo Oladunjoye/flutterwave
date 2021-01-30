@@ -16,7 +16,6 @@ const checkCondition = (condition, check, data) => {
       break;
     case 'gte':
       result = value >= check;
-      console.log(result);
       //
       break;
 
