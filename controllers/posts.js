@@ -11,7 +11,7 @@ const handlePosts = async (req, res, next) => {
   if (!rule) return next(new ErrorResponse('rule is required.', 400));
   if (!data) return next(new ErrorResponse('data is required.', 400));
 
-  //check if data is valid data structure
+  //check if data field has valid data structure
   if (!dataField.includes(typeof data)) {
     return next(
       new ErrorResponse('data should be an object, string or array.', 400)
