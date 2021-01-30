@@ -2,6 +2,9 @@ const countNesting = require('./countNesting');
 
 const fieldNesting = (rule, data) => {
   const inner = rule.field;
+  const response = {
+    status: false,
+  };
 
   const checkInner = (inner) => {
     const innerLength = inner.split('.');
@@ -31,7 +34,10 @@ const fieldNesting = (rule, data) => {
     if (level3) {
       result = result[level3];
     }
-    return result;
+
+    response['targetField'] = result;
+
+    return response;
   };
 
   return checkInner(inner);

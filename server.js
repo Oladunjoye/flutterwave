@@ -14,18 +14,21 @@ const app = express();
 // app.use(express.json('*/json'));
 app.use(
   express.json({
-    type: function () {
+    type: function (data) {
+      if (!data.headers['content-type'].includes('json')) {
+        throw new ErrorResponse('Invalid JSON payload passed.', 400);
+      }
+
       return true;
     },
-    // type: 'json'
   })
 );
 // Enable CORS
 app.use(cors());
 
-app.get('/real', (req, res, next) => {
-  return next(new ErrorResponse('it worked', 400));
-});
+// @desc      Post Validation Rule
+// @route     GET /validate-rule
+// @access    Public
 
 app.post('/validate-rule', postController);
 
@@ -47,14 +50,24 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler);
 
-const server = app.listen(
-  PORT,
-  console.log(`Server running in development mode on port ${PORT}`.yellow.bold)
-);
+// const server = app.listen(
+//   PORT,
+//   console.log(`Server running in development mode on port ${PORT}`.yellow.bold)
+// );
 
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(
+    PORT,
+    console.log(
+      `Server running in development mode on port ${PORT}`.yellow.bold
+    )
+  );
+}
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`.red);
   // Close server & exit process
   // server.close(() => process.exit(1));
 });
+
+module.exports = app;
